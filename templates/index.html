@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Remote-Controlled Car</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+
+            var socket = io.connect();
+
+            socket.on('connect', function() {
+                socket.emit('connected', {data: 'I\'m connected!'});
+            });
+
+            $('input.sync').on('input', function(event) {
+                socket.emit(
+                    'value changed',
+                    {
+                        steering: $("#steering").val(),
+                        throttle: $("#throttle").val()
+                    });
+                return false;
+            });
+
+            $("#reset").on('click', function (){
+                $("#steering").val(90);
+                $("#throttle").val(90);
+                socket.emit(
+                    'value changed',
+                    {
+                        steering: $("#steering").val(),
+                        throttle: ($("#throttle").val()
+                    });
+                return false;
+            });
+
+//            socket.on('update value', function(msg) {
+//                $('input#'+msg.who).val(msg.data)
+//            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1>This is Actually a Car!</h1>
+
+    <input id="steering" class="sync" type="range" min="53" max="140" value="90" /> <br>
+    <input id="throttle" class="sync" type="range" min="75" max="105" value="90" /> <br>
+    <button id="reset">STOP</button>
+
+</body>
+</html>
