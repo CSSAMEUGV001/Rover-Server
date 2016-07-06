@@ -30,7 +30,7 @@
                     'value changed',
                     {
                         steering: $("#steering").val(),
-                        throttle: ($("#throttle").val()
+                        throttle: $("#throttle").val()
                     });
                 return false;
             });
@@ -44,8 +44,9 @@
 </head>
 <body>
     <h1>This is Actually a Car!</h1>
-
+    <p>Steering:</p>
     <input id="steering" class="sync" type="range" min="53" max="140" value="90" /> <br>
+    <p>Throttle:</p>
     <input id="throttle" class="sync" type="range" min="75" max="105" value="90" /> <br>
     <button id="reset">STOP</button>
 
