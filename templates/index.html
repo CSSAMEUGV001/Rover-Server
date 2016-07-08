@@ -16,15 +16,16 @@
             mouseSupport	: true,
         });
         joystick.addEventListener('touchStart', function(){
-            console.log('down')
+            console.log('down');
         })
         joystick.addEventListener('touchEnd', function(){
-            console.log('up')
+            console.log('up');
         })
 
         setInterval(function(){
             var dx = joystick.deltaX();
             var dy = joystick.deltaY();
+            var spanId = document.getElementById("result");
 
             dx = -dx; // somehow the steering is backwards
             dx *= $("#steeringsens").val();
@@ -33,6 +34,8 @@
             dy = -dy; // damn upside-down computer screens
             dy *= $("#throttlesens").val();
             dy += {{neu_throttle}};
+
+            spanId.innerHTML = "<p>dx: " + dx + "\tdy: " + dy + "</p>";
 
             socket.emit(
                     'value changed',
@@ -70,7 +73,7 @@
     }
     #info {
         position	: absolute;
-        top		: 0px;
+        top 		: 0px;
         width		: 100%;
         padding		: 5px;
         text-align	: center;
@@ -100,6 +103,7 @@
         <input id="steeringsens" class="sens" type="range" min="0.01" max="0.1" step="0.01" /> <br>
         <p>Throttle Sensitivity:</p>
         <input id="throttlesens" class="sens" type="range" min="0.01" max="0.1" step="0.01" /> <br>
+        <span id="result"></span>
     </div> 
 </body>
 </html>
