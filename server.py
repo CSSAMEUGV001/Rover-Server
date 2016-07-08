@@ -8,9 +8,18 @@ car = PyCar()
 app = Flask(__name__)
 socketio = SocketIO(app)
 
+TEMPLATE_VALUES = {
+        'max_throttle': 105,
+        'min_throttle': 75,
+        'neu_throttle': 90,
+        'max_steering': 140,
+        'min_steering': 53,
+        'neu_steering': 90,
+}
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', **TEMPLATE_VALUES)
 
 # @app.route('/image')
 # def index():
