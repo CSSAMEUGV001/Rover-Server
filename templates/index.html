@@ -43,7 +43,7 @@
                         steering: dx,
                         throttle: dy
                     });
-        }, 1/30 * 1000);
+        }, 1/15 * 1000);
 
         socket.on('connect', function() {
             socket.emit('connected', {data: 'I\'m connected!'});
@@ -69,21 +69,17 @@
         overflow	: hidden;
         padding		: 0;
         margin		: 0;
-    background-color: #BBB;
+       /* background-color: #BBB;*/
+        background-color:rgba(0,0,0,0.0);
     }
     #info {
+        display     : none;
         position	: absolute;
         top 		: 0px;
         width		: 100%;
         padding		: 5px;
         text-align	: center;
-    }
-    #info a {
-        color		: #66F;
-        text-decoration	: none;
-    }
-    #info a:hover {
-        text-decoration	: underline;
+        color       : red;
     }
     #container {
         width		: 100%;
@@ -94,16 +90,24 @@
         -webkit-user-select	: none;
         -moz-user-select	: none;
     }
+    #stream {
+       /* display: block;
+        margin: 0 auto;*/
+        width  : 100%;
+        height : auto;
+    }
     </style>
 </head>
 <body>
-    <div id="container"></div>
+    <div id="container">
+        <img src="{{ url_for('video_feed') }}" id="stream">
+    </div>
     <div id="info">
         <p>Steering Sensitivity:</p>
         <input id="steeringsens" class="sens" type="range" min="0.01" max="0.1" step="0.01" /> <br>
         <p>Throttle Sensitivity:</p>
         <input id="throttlesens" class="sens" type="range" min="0.01" max="0.1" step="0.01" /> <br>
         <span id="result"></span>
-    </div> 
+    </div>
 </body>
 </html>

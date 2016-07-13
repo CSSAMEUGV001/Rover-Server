@@ -1,7 +1,8 @@
 from __future__ import print_function
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 from flask_socketio import SocketIO, emit
 from i2c_backend import PyCar
+from camera import Camera
 
 car = PyCar()
 
@@ -15,16 +16,22 @@ TEMPLATE_VALUES = {
         'max_steering': 140,
         'min_steering': 53,
         'neu_steering': 90,
-}
+        }
 
 @app.route('/')
 def index():
     return render_template('index.html', **TEMPLATE_VALUES)
 
-# @app.route('/image')
-# def index():
-#     #TODO return the image
-#     return render_template('index.html')
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(Camera()),
+           mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @socketio.on('value changed')
 def value_changed(message):

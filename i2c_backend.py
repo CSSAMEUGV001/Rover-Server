@@ -11,7 +11,7 @@ class PyCar:
     def __init__(self):
         self.bus = smbus.SMBus(1)
 
-    def control(self, steering, throttle):
+    def control(self, steering, throttle):      
         print('Steering: {}\tThrottle: {}'.format(steering, throttle))
         self.bus.write_i2c_block_data(self.address, steering, [throttle])
 
