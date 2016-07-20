@@ -9,25 +9,26 @@ class gps:
 
         self.gpsOn = False
 
-        if msg == "OK"
+        if msg == "OK":
             print "Connected"
             self.connected = True
-        else
+        else:
             print "OK Not returned"
             self.connected = False
 
     def connect(self):
         self.ser = serial.Serial(serial_path, baud)
-        while msg != "OK"
+        while msg != "OK":
             self.ser.write("at\n")
             msg = self.ser.readline()
         print "Connected to module, OK received"
 
     def getGPS(self):
-        if(self.connected == True and self.gpsOn == True)
+		msg = "ERROR"
+        if self.connected and self.gpsOn:
             self.ser.write("At+CGPSINFO")
             msg = self.ser.readline()
-            return msg
+        return msg
 
     def startGPS(self):
         if self.connected == True:
@@ -45,4 +46,4 @@ class gps:
     # TODO, add parsing to just get lat and long
     def getLongLat(self):
         if(self.connected and self.gpsOn)
-            getGPS
+            getGPS()
