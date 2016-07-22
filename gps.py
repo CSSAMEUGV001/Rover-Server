@@ -2,20 +2,22 @@ import serial
 import time
 
 class gps:
-    DEFAULT_SERIAL_PATH = 'dev/ttyUSB0'
+    DEFAULT_SERIAL_PATH = '/dev/ttyUSB0'
 
     def __init__(self, serial_port = DEFAULT_SERIAL_PATH, baud = 9600):
         self.port = serial_port
         self.baud = baud
 
         self.gpsOn = False
+		
+		self.connect()
 
-        if msg == "OK":
-            print "Connected"
-            self.connected = True
-        else:
-            print "OK Not returned"
-            self.connected = False
+#        if msg == "OK":
+#            print "Connected"
+#            self.connected = True
+#        else:
+#            print "OK Not returned"
+#            self.connected = False
 
     def connect(self):
         self.ser = serial.Serial(serial_path, baud)
@@ -67,7 +69,7 @@ class gps:
 	
 	# Universal parser to parse AT command responses
 	def parse_reply(self, message, seperator):
-		msgLsit = message.split(seperator)
+		msgList = message.split(seperator)
 		
 		return msgList
 		
