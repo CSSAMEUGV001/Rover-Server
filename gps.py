@@ -1,4 +1,5 @@
 import serial
+import time
 
 class gps:
     DEFAULT_SERIAL_PATH = 'dev/ttyUSB0'
@@ -23,13 +24,19 @@ class gps:
             msg = self.ser.readline()
         print "Connected to module, OK received"
 
+	#Gets raw gps data returned from gps module
     def getGPS(self):
 		msg = "ERROR"
         if self.connected and self.gpsOn:
-            self.ser.write("At+CGPSINFO")
-            msg = self.ser.readline()
-        return msg
-
+			while True:
+				self.ser.write("At+CGPSINFO")
+				time.sleep(1)
+				msg = self.ser.readline()
+				if msg.find("+CGPSINFO:") != -1:
+					break
+        return msg	
+			
+	#Turns the gps module on
     def startGPS(self):
         if self.connected == True:
             while self.gpsOn == False:
@@ -38,6 +45,7 @@ class gps:
                 if msg == "OK"
                     self.gpsOn = True
 
+	#Turns the gps module off
     def stopGPS(self):
         if self.connected:
             self.ser.write("AT+CGPS=0")
@@ -45,5 +53,27 @@ class gps:
 
     # TODO, add parsing to just get lat and long
     def getLongLat(self):
-        if(self.connected and self.gpsOn)
-            getGPS()
+		#Makes sure there is a serial connection, if not will connect
+		while !self.connected:
+			self.connect()
+			time.sleep(2)
+			
+		#Makes sure gps is on, if not turns on
+		while !self.gpsOn:
+			self.startGPS()
+			time.sleep(2)
+		
+        return getGPS()
+	
+	# Universal parser to parse AT command responses
+	def parse_reply(self, message, seperator):
+		msgLsit = message.split(seperator)
+		
+		return msgList
+		
+	
+	
+	
+	
+	
+	
