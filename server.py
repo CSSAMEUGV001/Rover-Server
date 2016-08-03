@@ -3,6 +3,7 @@ from flask import Flask, render_template, Response
 from flask_socketio import SocketIO, emit
 from i2c_backend import PyCar
 from camera import Camera
+from time import time
 
 car = PyCar()
 
@@ -10,8 +11,8 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 TEMPLATE_VALUES = {
-        'max_throttle': 105,
-        'min_throttle': 75,
+        'max_throttle': 115,
+        'min_throttle': 65,
         'neu_throttle': 90,
         'max_steering': 140,
         'min_steering': 53,

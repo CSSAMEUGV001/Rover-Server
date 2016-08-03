@@ -2,10 +2,11 @@ import time
 import io
 import threading
 import picamera
+from time import sleep
 
-WIDTH = 256
-HEIGHT = 144
-# FRAMERATE = 30
+WIDTH = 100
+HEIGHT = 100
+FRAMERATE = 30
 
 class Camera(object):
     thread = None  # background thread that reads frames from camera
@@ -31,19 +32,23 @@ class Camera(object):
     def _thread(cls):
         with picamera.PiCamera() as camera:
             # camera setup
-            camera.resolution = (WIDTH, HEIGHT)
-            #camera.hflip = True
-            #camera.vflip = True
-            
+            #camera.resolution = (WIDTH, HEIGHT) 
             #camera.framerate = FRAMERATE
+
+            print("camera initialized")
 
             # let camera warm up
             camera.start_preview()
             time.sleep(2)
 
             stream = io.BytesIO()
-            for foo in camera.capture_continuous(stream, 'jpeg',
-                                                 use_video_port=True):
+            for foo in camera.capture_continuous(stream, 
+                                                 'jpeg',
+                                                 use_video_port = True,
+                                                 resize =  (WIDTH,HEIGHT),
+                                                 splitter_port = 0,
+                                                 thumbnail = None,
+                                                 bayer = False):
                 # store frame
                 stream.seek(0)
                 cls.frame = stream.read()
