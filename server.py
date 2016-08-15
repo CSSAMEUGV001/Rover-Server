@@ -1,20 +1,15 @@
 from __future__ import print_function
 from flask import Flask, render_template, Response
 from flask_socketio import SocketIO, emit
-from i2c_backend import PyCar
-from time import time
-
-car = PyCar()
+import json
+import pisocket
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+piserver = None
 
 TEMPLATE_VALUES = {
-        'max_throttle': 115,
-        'min_throttle': 65,
         'neu_throttle': 90,
-        'max_steering': 140,
-        'min_steering': 53,
         'neu_steering': 90,
         }
 
@@ -24,10 +19,16 @@ def index():
 
 @socketio.on('value changed')
 def value_changed(message):
-    steering = int(message.get('steering', 90))
-    throttle = int(message.get('throttle', 90))
-    car.control(steering, throttle)
-    # print(str(steering) + " " + str(throttle))
+    if piserver != None:
+        steering = int(message.get('steering', 90))
+        throttle = int(message.get('throttle', 90))
+        piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
+        # print(str(steering) + " " + str(throttle))
 
 if __name__ == '__main__':
+    print('Waiting for RaspberryPi')
+    piserver = pisocket.SocketCommunicator.server()
+    piip = piserver.sock.getpeername()[0]
+    TEMPLATE_VALUES['piip'] = piip
     socketio.run(app, host='0.0.0.0')
+
