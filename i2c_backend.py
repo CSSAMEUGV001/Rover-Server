@@ -12,7 +12,7 @@ class PyCar:
         self.bus = smbus.SMBus(1)
 
     def control(self, steering, throttle):      
-        print('Steering: {}\tThrottle: {}'.format(steering, throttle))
+#        print('Steering: {}\tThrottle: {}'.format(steering, throttle))
         self.bus.write_i2c_block_data(self.address, steering, [throttle])
 
 if __name__ == '__main__':
