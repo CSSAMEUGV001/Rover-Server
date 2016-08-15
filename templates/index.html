@@ -1,53 +1,83 @@
-<!DOCTYPE HTML>
 <html>
 <head>
-    <title>Remote-Controlled Car</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready(function(){
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-            var socket = io.connect();
+    <script src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/socket.io.min.js"></script>
+    <script src="static/virtualjoystick.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
 
-            socket.on('connect', function() {
-                socket.emit('connected', {data: 'I\'m connected!'});
-            });
-
-            $('input.sync').on('input', function(event) {
-                socket.emit(
-                    'value changed',
-                    {
-                        steering: $("#steering").val(),
-                        throttle: $("#throttle").val()
-                    });
-                return false;
-            });
-
-            $("#reset").on('click', function (){
-                $("#steering").val(90);
-                $("#throttle").val(90);
-                socket.emit(
-                    'value changed',
-                    {
-                        steering: $("#steering").val(),
-                        throttle: ($("#throttle").val()
-                    });
-                return false;
-            });
-
-//            socket.on('update value', function(msg) {
-//                $('input#'+msg.who).val(msg.data)
-//            });
-
+        var socket = io.connect();
+        var joystick	= new VirtualJoystick({
+            container	: document.getElementById('container'),
+            mouseSupport	: true,
         });
+        joystick.addEventListener('touchStart', function(){
+            console.log('down');
+        })
+        joystick.addEventListener('touchEnd', function(){
+            console.log('up');
+        })
+
+        setInterval(function(){
+            var dx = joystick.deltaX();
+            var dy = joystick.deltaY();
+
+            dx = -dx; // somehow the steering is backwards
+            dx *= {{throttle_scale}};
+            dx += {{neu_steering}};
+
+            dy = -dy; // damn upside-down computer screens
+            dy *= {{steering_scale}};
+            dy += {{neu_throttle}};
+
+            socket.emit(
+                    'value changed',
+                    {
+                        steering: dx,
+                        throttle: dy
+                    });
+        }, 1/{{framerate}} * 1000);
+
+        socket.on('connect', function() {
+            socket.emit('connected', {data: 'I\'m connected!'});
+        });
+
+    });
     </script>
+
+    <style>
+    body {
+        overflow	: hidden;
+        padding		: 0;
+        margin		: 0;
+       /* background-color: #BBB;*/
+        background-color:rgba(0,0,0,0.0);
+    }
+    #container {
+        width		: 100%;
+        height		: 100%;
+        overflow	: hidden;
+        padding		: 0;
+        margin		: 0;
+        -webkit-user-select	: none;
+        -moz-user-select	: none;
+    }
+    #stream {
+       /* display: block;
+        margin: 0 auto;*/
+        width  : 100%;
+        height : auto;
+    }
+    </style>
 </head>
 <body>
-    <h1>This is Actually a Car!</h1>
-
-    <input id="steering" class="sync" type="range" min="53" max="140" value="90" /> <br>
-    <input id="throttle" class="sync" type="range" min="75" max="105" value="90" /> <br>
-    <button id="reset">STOP</button>
-
+    <div id="container">
+        <!-- here's the url for the video -->
+        <img src="http://{{piip}}:9090/stream/video.mjpeg" id="stream">
+    </div>
 </body>
 </html>
