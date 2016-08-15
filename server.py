@@ -9,6 +9,9 @@ socketio = SocketIO(app)
 piserver = None
 
 TEMPLATE_VALUES = {
+        'framerate': 15,
+        'throttle_scale': 0.1,
+        'steering_scale': 0.1,
         'neu_throttle': 90,
         'neu_steering': 90,
         }

@@ -27,11 +27,11 @@
             var dy = joystick.deltaY();
 
             dx = -dx; // somehow the steering is backwards
-            dx *= 0.1;
+            dx *= {{throttle_scale}};
             dx += {{neu_steering}};
 
             dy = -dy; // damn upside-down computer screens
-            dy *= 0.1;
+            dy *= {{steering_scale}};
             dy += {{neu_throttle}};
 
             socket.emit(
@@ -40,22 +40,10 @@
                         steering: dx,
                         throttle: dy
                     });
-        }, 1/15 * 1000);
+        }, 1/{{framerate}} * 1000);
 
         socket.on('connect', function() {
             socket.emit('connected', {data: 'I\'m connected!'});
-        });
-
-        $("#reset").on('click', function (){
-            $("#steering").val({{neu_steering}});
-            $("#throttle").val({{neu_throttle}});
-            socket.emit(
-                    'value changed',
-                    {
-                        steering: $("#steering").val(),
-                        throttle: $("#throttle").val()
-                    });
-            return false;
         });
 
     });
