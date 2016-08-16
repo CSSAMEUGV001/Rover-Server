@@ -6,7 +6,14 @@ import pisocket
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-piserver = None
+
+class Socketor:
+    def reconnect(self):
+        print('Waiting for RaspberryPi')
+        self.piserver = pisocket.SocketCommunicator.server()
+
+sock = Socketor()
+
 
 TEMPLATE_VALUES = {
         'framerate': 15,
@@ -22,19 +29,17 @@ def index():
 
 @socketio.on('value changed')
 def value_changed(message):
-    if piserver != None:
-        steering = int(message.get('steering', 90))
-        throttle = int(message.get('throttle', 90))
-        try:
-            piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
-        except:
-            pass
-        # print(str(steering) + " " + str(throttle))
+    steering = int(message.get('steering', 90))
+    throttle = int(message.get('throttle', 90))
+    try:
+        sock.piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
+    except:
+        sock.reconnect()
+    # print(str(steering) + " " + str(throttle))
 
 if __name__ == '__main__':
-    print('Waiting for RaspberryPi')
-    piserver = pisocket.SocketCommunicator.server()
-    piip = piserver.sock.getpeername()[0]
+    sock.reconnect()
+    piip = sock.piserver.sock.getpeername()[0]
     TEMPLATE_VALUES['piip'] = piip
     socketio.run(app, host='0.0.0.0')
 
