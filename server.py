@@ -25,7 +25,10 @@ def value_changed(message):
     if piserver != None:
         steering = int(message.get('steering', 90))
         throttle = int(message.get('throttle', 90))
-        piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
+        try:
+            piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
+        except:
+            pass
         # print(str(steering) + " " + str(throttle))
 
 if __name__ == '__main__':
