@@ -4,17 +4,6 @@ from flask_socketio import SocketIO, emit
 import json
 import pisocket
 
-app = Flask(__name__)
-socketio = SocketIO(app)
-
-class Socketor:
-    def reconnect(self):
-        print('Waiting for RaspberryPi')
-        self.piserver = pisocket.SocketCommunicator.server()
-
-sock = Socketor()
-
-
 TEMPLATE_VALUES = {
         'framerate': 15,
         'throttle_scale': 0.1,
@@ -22,6 +11,19 @@ TEMPLATE_VALUES = {
         'neu_throttle': 90,
         'neu_steering': 90,
         }
+
+app = Flask(__name__)
+socketio = SocketIO(app)
+
+class Socketor:
+    def reconnect(self):
+        print('Waiting for RaspberryPi')
+        self.piserver = pisocket.SocketCommunicator.server()
+        piip = sock.piserver.sock.getpeername()[0]
+        TEMPLATE_VALUES['piip'] = piip
+
+sock = Socketor()
+
 
 @app.route('/')
 def index():
@@ -39,7 +41,5 @@ def value_changed(message):
 
 if __name__ == '__main__':
     sock.reconnect()
-    piip = sock.piserver.sock.getpeername()[0]
-    TEMPLATE_VALUES['piip'] = piip
     socketio.run(app, host='0.0.0.0')
 
