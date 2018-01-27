@@ -1,4 +1,8 @@
 import socket
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 MASTER_SERVER = '192.168.1.3'
 
@@ -9,19 +13,25 @@ NUL = b'\0'
 class SocketCommunicator:
     @staticmethod
     def server():
+        logger.info('starting server...')
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        logger.info('determining ip address')
         myip = [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
-        print('starting server at {myip}'.format(**vars()))
+        logger.info('starting server at {myip}'.format(**vars()))
         serversocket.bind((myip, PORT))
         serversocket.listen(1)
 
         connected = False
         while not connected:
             (sock, addr) = serversocket.accept()
+            logger.info('accepting message from {}'.format(addr))
             client = SocketCommunicator(sock)
             message = client.read_to_nul()
             if message == KEY:
                 connected = True
+            else:
+                logger.info('received invalid key: {}'.format(message))
+        logger.info('client connection established')
         return client
 
     @staticmethod

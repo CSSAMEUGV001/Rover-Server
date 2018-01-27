@@ -1,8 +1,14 @@
 from __future__ import print_function
-from flask import Flask, render_template, Response
-from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, redirect, Response
+from flask_socketio import SocketIO, emit, join_room
 import json
-import pisocket
+from threading import Thread
+
+ROVER = '/rover'
+BROWSER = '/browser'
+VALUE_CHANGED = 'value changed'
+ROVER_CONNECTED = 'rover connected'
+ROVER_CONTROL = 'control'
 
 TEMPLATE_VALUES = {
         'framerate': 15,
@@ -10,36 +16,40 @@ TEMPLATE_VALUES = {
         'steering_scale': 0.1,
         'neu_throttle': 90,
         'neu_steering': 90,
+        'piip': '',
+        'socketio_namespace': BROWSER,
+        'value_changed': VALUE_CHANGED,
+        'rover_connected': ROVER_CONNECTED,
         }
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-class Socketor:
-    def reconnect(self):
-        print('Waiting for RaspberryPi')
-        self.piserver = pisocket.SocketCommunicator.server()
-        piip = sock.piserver.sock.getpeername()[0]
-        TEMPLATE_VALUES['piip'] = piip
-
-sock = Socketor()
-
-
 @app.route('/')
 def index():
     return render_template('index.html', **TEMPLATE_VALUES)
 
-@socketio.on('value changed')
+@socketio.on('connect', namespace=BROWSER)
+def browser_connected():
+    app.logger.info('browser connected')
+    join_room(BROWSER)
+
+@socketio.on(VALUE_CHANGED, namespace=BROWSER)
 def value_changed(message):
     steering = int(message.get('steering', 90))
     throttle = int(message.get('throttle', 90))
-    try:
-        sock.piserver.send_nul(json.dumps({'steering': steering, 'throttle': throttle}).encode())
-    except:
-        sock.reconnect()
-    # print(str(steering) + " " + str(throttle))
+    app.logger.info('value: {} {}'.format(steering, throttle))
+    emit(ROVER_CONTROL, {'steering': steering, 'throttle': throttle}, namespace=ROVER, room=ROVER)
+
+@socketio.on('connect', namespace=ROVER)
+def rover_connect():
+    app.logger.info('rover connected')
+    join_room(ROVER)
+    #TODO figure out how to emit this even if the browser hasn't connected yet
+    # (need to figure out how to emit this on browser connect)
+    emit(ROVER_CONNECTED, {}, namespace=BROWSER, room=BROWSER)
 
 if __name__ == '__main__':
-    sock.reconnect()
-    socketio.run(app, host='0.0.0.0')
+    app.logger.info('starting')
+    socketio.run(app, host='0.0.0.0', debug=True)
 
