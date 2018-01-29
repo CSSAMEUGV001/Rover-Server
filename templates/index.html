@@ -48,6 +48,10 @@
 	    $('#status').text('rover connected');
         });
 
+	socket.on('{{rover_image}}', function(b64) {
+	    $('#stream').attr("src", "data:image/jpeg;base64," + b64);
+        });
+
         socket.on('connect', function() {
             socket.emit('connected', {data: 'I\'m connected!'});
         });
@@ -86,7 +90,7 @@
     </div>
     <div id="container">
         <!-- here's the url for the video -->
-        <!--img src="http://{{piip}}:9090/stream/video.mjpeg" id="stream"-->
+        <img id="stream">
     </div>
 </body>
 </html>

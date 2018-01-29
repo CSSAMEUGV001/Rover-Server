@@ -4,11 +4,14 @@ from flask_socketio import SocketIO, emit, join_room
 import json
 from threading import Thread
 
+import base64
+
 ROVER = '/rover'
 BROWSER = '/browser'
 VALUE_CHANGED = 'value changed'
 ROVER_CONNECTED = 'rover connected'
 ROVER_CONTROL = 'control'
+ROVER_IMAGE = 'image'
 
 TEMPLATE_VALUES = {
         'framerate': 15,
@@ -16,10 +19,10 @@ TEMPLATE_VALUES = {
         'steering_scale': 0.1,
         'neu_throttle': 90,
         'neu_steering': 90,
-        'piip': '',
         'socketio_namespace': BROWSER,
         'value_changed': VALUE_CHANGED,
         'rover_connected': ROVER_CONNECTED,
+        'rover_image': ROVER_IMAGE,
         }
 
 app = Flask(__name__)
@@ -38,7 +41,7 @@ def browser_connected():
 def value_changed(message):
     steering = int(message.get('steering', 90))
     throttle = int(message.get('throttle', 90))
-    app.logger.info('value: {} {}'.format(steering, throttle))
+    #app.logger.info('value: {} {}'.format(steering, throttle))
     emit(ROVER_CONTROL, {'steering': steering, 'throttle': throttle}, namespace=ROVER, room=ROVER)
 
 @socketio.on('connect', namespace=ROVER)
@@ -48,6 +51,11 @@ def rover_connect():
     #TODO figure out how to emit this even if the browser hasn't connected yet
     # (need to figure out how to emit this on browser connect)
     emit(ROVER_CONNECTED, {}, namespace=BROWSER, room=BROWSER)
+
+@socketio.on(ROVER_IMAGE, namespace=ROVER)
+def rover_connect(b64):
+    app.logger.info('rover sent image')
+    emit(ROVER_IMAGE, b64, namespace=BROWSER, room=BROWSER)
 
 if __name__ == '__main__':
     app.logger.info('starting')
