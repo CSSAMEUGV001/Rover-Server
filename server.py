@@ -52,8 +52,12 @@ def rover_connect():
     # (need to figure out how to emit this on browser connect)
     emit(ROVER_CONNECTED, {}, namespace=BROWSER, room=BROWSER)
 
+@socketio.on('disconnect', namespace=ROVER)
+def rover_disconnect():
+    app.logger.info('rover disconnected')
+
 @socketio.on(ROVER_IMAGE, namespace=ROVER)
-def rover_connect(b64):
+def rover_image(b64):
     app.logger.info('rover sent image')
     emit(ROVER_IMAGE, b64, namespace=BROWSER, room=BROWSER)
 
